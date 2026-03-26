@@ -15,12 +15,12 @@ void clearInputLine() {
 }
 
 void printMenu() {
-    std::cout << "\n=== Restaurant Order System ===\n";
-    std::cout << "1. Create order\n";
-    std::cout << "2. Modify order\n";
-    std::cout << "3. Send order\n";
-    std::cout << "4. Exit\n";
-    std::cout << "Choice: ";
+    std::cout << "\n=== Sistema de pedidos del restaurante ===\n";
+    std::cout << "1. Crear pedido\n";
+    std::cout << "2. Modificar pedido\n";
+    std::cout << "3. Enviar pedido\n";
+    std::cout << "4. Salir\n";
+    std::cout << "Opción: ";
 }
 
 } // namespace
@@ -34,7 +34,7 @@ int main() {
         int choice = 0;
         if (!(std::cin >> choice)) {
             clearInputLine();
-            std::cout << "Invalid input. Try again.\n";
+            std::cout << "Entrada no válida. Intenta de nuevo.\n";
             continue;
         }
         clearInputLine();
@@ -43,76 +43,78 @@ int main() {
             Order o{};
             inputOrder(o);
             if (!validateOrder(o)) {
-                std::cout << "Invalid order: table and quantity must be > 0, "
-                             "product must not be empty.\n";
+                std::cout << "Pedido no válido: la mesa y la cantidad deben ser "
+                             "mayores que 0 y el producto no puede estar vacío.\n";
                 continue;
             }
             pending_orders.push_back(o);
-            std::cout << "Order added to pending list.\n";
+            std::cout << "Pedido añadido a la lista pendiente.\n";
         } else if (choice == 2) {
             if (pending_orders.empty()) {
-                std::cout << "No pending orders to modify.\n";
+                std::cout << "No hay pedidos pendientes para modificar.\n";
                 continue;
             }
-            std::cout << "Pending orders:\n";
+            std::cout << "Pedidos pendientes:\n";
             for (std::size_t i = 0; i < pending_orders.size(); ++i) {
                 std::cout << "[" << i << "]\n";
                 displayOrder(pending_orders[i]);
                 std::cout << '\n';
             }
-            std::cout << "Index to modify: ";
+            std::cout << "Índice a modificar: ";
             std::size_t idx = 0;
             if (!(std::cin >> idx)) {
                 clearInputLine();
-                std::cout << "Invalid index.\n";
+                std::cout << "Índice no válido.\n";
                 continue;
             }
             clearInputLine();
             if (idx >= pending_orders.size()) {
-                std::cout << "Invalid index.\n";
+                std::cout << "Índice no válido.\n";
                 continue;
             }
             modifyOrder(pending_orders[idx]);
             if (!validateOrder(pending_orders[idx])) {
-                std::cout << "Warning: this order is still invalid until fixed.\n";
+                std::cout << "Atención: este pedido sigue siendo inválido hasta "
+                             "que lo corrijas.\n";
             }
         } else if (choice == 3) {
             if (pending_orders.empty()) {
-                std::cout << "No pending orders to send.\n";
+                std::cout << "No hay pedidos pendientes para enviar.\n";
                 continue;
             }
-            std::cout << "Pending orders:\n";
+            std::cout << "Pedidos pendientes:\n";
             for (std::size_t i = 0; i < pending_orders.size(); ++i) {
                 std::cout << "[" << i << "]\n";
                 displayOrder(pending_orders[i]);
                 std::cout << '\n';
             }
-            std::cout << "Index to send: ";
+            std::cout << "Índice a enviar: ";
             std::size_t idx = 0;
             if (!(std::cin >> idx)) {
                 clearInputLine();
-                std::cout << "Invalid index.\n";
+                std::cout << "Índice no válido.\n";
                 continue;
             }
             clearInputLine();
             if (idx >= pending_orders.size()) {
-                std::cout << "Invalid index.\n";
+                std::cout << "Índice no válido.\n";
                 continue;
             }
             if (!validateOrder(pending_orders[idx])) {
-                std::cout << "Cannot send: order is invalid. Modify it first.\n";
+                std::cout << "No se puede enviar: el pedido no es válido. "
+                             "Modifícalo primero.\n";
                 continue;
             }
             const std::string payload = serializeOrder(pending_orders[idx]) + '\n';
             sendOrderAsync(payload);
             pending_orders.erase(pending_orders.begin() +
                                  static_cast<std::ptrdiff_t>(idx));
-            std::cout << "Order queued for sending (async).\n";
+            std::cout << "Pedido encolado para envío (asíncrono).\n";
         } else if (choice == 4) {
-            std::cout << "Goodbye.\n";
+            std::cout << "Hasta luego.\n";
             break;
         } else {
-            std::cout << "Invalid choice. Enter 1–4.\n";
+            std::cout << "Opción no válida. Elige un número del 1 al 4.\n";
         }
     }
 

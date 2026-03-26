@@ -15,17 +15,17 @@ void clearInputLine() {
 } // namespace
 
 void inputOrder(Order &order) {
-    std::cout << "Table number: ";
+    std::cout << "Número de mesa: ";
     if (!(std::cin >> order.table)) {
         clearInputLine();
         return;
     }
     clearInputLine();
 
-    std::cout << "Product name: ";
+    std::cout << "Nombre del producto: ";
     std::getline(std::cin, order.product);
 
-    std::cout << "Quantity: ";
+    std::cout << "Cantidad: ";
     if (!(std::cin >> order.quantity)) {
         clearInputLine();
         return;
@@ -53,58 +53,58 @@ std::string serializeOrder(const Order &order) {
 }
 
 void displayOrder(const Order &order) {
-    std::cout << "  Table: " << order.table << '\n';
-    std::cout << "  Product: " << order.product << '\n';
-    std::cout << "  Quantity: " << order.quantity << '\n';
+    std::cout << "  Mesa: " << order.table << '\n';
+    std::cout << "  Producto: " << order.product << '\n';
+    std::cout << "  Cantidad: " << order.quantity << '\n';
 }
 
 void modifyOrder(Order &order) {
     while (true) {
-        std::cout << "\n--- Modify order ---\n";
+        std::cout << "\n--- Modificar pedido ---\n";
         displayOrder(order);
-        std::cout << "1. Change table\n";
-        std::cout << "2. Change product\n";
-        std::cout << "3. Change quantity\n";
-        std::cout << "4. Done\n";
-        std::cout << "Choice: ";
+        std::cout << "1. Cambiar mesa\n";
+        std::cout << "2. Cambiar producto\n";
+        std::cout << "3. Cambiar cantidad\n";
+        std::cout << "4. Terminar\n";
+        std::cout << "Opción: ";
 
         int choice = 0;
         if (!(std::cin >> choice)) {
             clearInputLine();
-            std::cout << "Invalid input.\n";
+            std::cout << "Entrada no válida.\n";
             continue;
         }
         clearInputLine();
 
         if (choice == 1) {
-            std::cout << "New table number: ";
+            std::cout << "Nuevo número de mesa: ";
             if (!(std::cin >> order.table)) {
                 clearInputLine();
-                std::cout << "Invalid number.\n";
+                std::cout << "Número no válido.\n";
                 continue;
             }
             clearInputLine();
         } else if (choice == 2) {
-            std::cout << "New product name: ";
+            std::cout << "Nuevo nombre del producto: ";
             std::getline(std::cin, order.product);
         } else if (choice == 3) {
-            std::cout << "New quantity: ";
+            std::cout << "Nueva cantidad: ";
             if (!(std::cin >> order.quantity)) {
                 clearInputLine();
-                std::cout << "Invalid number.\n";
+                std::cout << "Número no válido.\n";
                 continue;
             }
             clearInputLine();
         } else if (choice == 4) {
             break;
         } else {
-            std::cout << "Invalid choice.\n";
+            std::cout << "Opción no válida.\n";
             continue;
         }
 
         if (!validateOrder(order)) {
-            std::cout << "Validation failed: table and quantity must be > 0, "
-                         "product must not be empty.\n";
+            std::cout << "Validación incorrecta: la mesa y la cantidad deben ser "
+                         "mayores que 0 y el producto no puede estar vacío.\n";
         }
     }
 }

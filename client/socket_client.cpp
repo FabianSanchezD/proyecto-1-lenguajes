@@ -33,7 +33,7 @@ void sendOrder(const std::string &serialized) {
     const int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_fd < 0) {
         socketPerror("socket");
-        socketLog("Failed to connect\n");
+        socketLog("No se pudo conectar\n");
         return;
     }
 
@@ -44,10 +44,10 @@ void sendOrder(const std::string &serialized) {
     if (inet_pton(AF_INET, kServerHost, &addr.sin_addr) != 1) {
         {
             std::lock_guard<std::mutex> lock(g_socket_log_mutex);
-            std::cerr << "Invalid address: " << kServerHost << '\n';
+            std::cerr << "Dirección no válida: " << kServerHost << '\n';
         }
         close(sock_fd);
-        socketLog("Failed to connect\n");
+        socketLog("No se pudo conectar\n");
         return;
     }
 
@@ -55,11 +55,11 @@ void sendOrder(const std::string &serialized) {
     if (connect(sock_fd, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) < 0) {
         socketPerror("connect");
         close(sock_fd);
-        socketLog("Failed to connect\n");
+        socketLog("No se pudo conectar\n");
         return;
     }
 
-    socketLog("Connected to server\n");
+    socketLog("Conectado al servidor\n");
 
     // send() may write only part of the buffer; loop until all bytes are sent.
     const char *data = serialized.c_str();
@@ -69,11 +69,11 @@ void sendOrder(const std::string &serialized) {
         if (sent < 0) {
             socketPerror("send");
             close(sock_fd);
-            socketLog("Failed to send order\n");
+            socketLog("No se pudo enviar el pedido\n");
             return;
         }
         if (sent == 0) {
-            socketLog("Failed to send order\n");
+            socketLog("No se pudo enviar el pedido\n");
             close(sock_fd);
             return;
         }
@@ -82,7 +82,7 @@ void sendOrder(const std::string &serialized) {
     }
 
     close(sock_fd);
-    socketLog("Order sent successfully\n");
+    socketLog("Pedido enviado correctamente\n");
 }
 
 void sendOrderAsync(const std::string &serialized) {
@@ -103,7 +103,7 @@ void waitForPendingSends() {
     if (g_pending_async_sends.load(std::memory_order_acquire) == 0) {
         return;
     }
-    socketLog("Waiting for pending sends to finish...\n");
+    socketLog("Esperando a que terminen los envíos pendientes...\n");
     while (g_pending_async_sends.load(std::memory_order_acquire) > 0) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }

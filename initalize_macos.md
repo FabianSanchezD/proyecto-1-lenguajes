@@ -102,10 +102,10 @@ El cliente intenta conectarse a:
 
 # Uso del programa
 
-1. Create order  
-2. Modify order  
-3. Send order  
-4. Exit  
+1. Crear pedido  
+2. Modificar pedido  
+3. Enviar pedido  
+4. Salir  
 
 ---
 
