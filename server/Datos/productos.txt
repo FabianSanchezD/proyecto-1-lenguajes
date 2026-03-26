@@ -1,0 +1,3 @@
+Arroz con pollo,7000
+Pescado,9000
+Pizza mediana,5000

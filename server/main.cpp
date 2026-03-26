@@ -1,9 +1,12 @@
 #include "order_store.h"
 #include "server_socket.h"
+#include "config.h"
 
 #include <iostream>
 #include <limits>
 #include <thread>
+#include <vector>
+
 
 static void clearInputLine() {
     std::cin.clear();
@@ -11,13 +14,17 @@ static void clearInputLine() {
 }
 
 static void adminMenu(OrderStore& store) {
+    vector<producto> lista;
+    cargarProductos(lista);
+    int cantidadMesas = cargarMesas();
     int option = 0;
     while (true) {
         std::cout << "\n=== Menu Administrador ===\n"
                   << "1. Ver todas las ordenes\n"
                   << "2. Ver ordenes pendientes\n"
                   << "3. Marcar orden como completada\n"
-                  << "4. Salir\n"
+                  << "4. Configuracion\n"
+                  << "5. Salir\n"
                   << "Opcion: ";
 
         if (!(std::cin >> option)) {
@@ -50,6 +57,9 @@ static void adminMenu(OrderStore& store) {
             break;
         }
         case 4:
+            menuConfiguracion(lista);
+            break;
+        case 5:
             std::cout << "Cerrando servidor...\n";
             return;
         default:
