@@ -103,7 +103,7 @@ int main() {
                 std::cout << "Cannot send: order is invalid. Modify it first.\n";
                 continue;
             }
-            const std::string payload = serializeOrder(pending_orders[idx]);
+            const std::string payload = serializeOrder(pending_orders[idx]) + '\n';
             sendOrderAsync(payload);
             pending_orders.erase(pending_orders.begin() +
                                  static_cast<std::ptrdiff_t>(idx));
