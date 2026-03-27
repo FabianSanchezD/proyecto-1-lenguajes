@@ -2,6 +2,7 @@
 #define SOCKET_CLIENT_H
 
 #include <string>
+#include <vector>
 
 /** Server address used by the waiter client (matches typical local dev setup). */
 constexpr const char *kServerHost = "127.0.0.1";
@@ -23,5 +24,11 @@ void sendOrderAsync(const std::string &serialized);
  * Blocks until all queued async sends have finished (e.g. before process exit).
  */
 void waitForPendingSends();
+
+// obtiene la cantidad de mesas desde el servidor
+int getMesasFromServer();
+
+// obtiene la lista de productos desde el servidor
+std::vector<std::string> getProductosFromServer();
 
 #endif

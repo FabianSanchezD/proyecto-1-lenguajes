@@ -1,4 +1,6 @@
 #include "server_socket.h"
+#include "producto.h"
+#include "config.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -30,7 +32,9 @@ static bool parseAndStore(const std::string& msg, OrderStore& store) {
             return false;
         }
 
-        store.add(table, parts[1], quantity);
+        std::string nombre = parts[1];
+
+        store.add(table, nombre, quantity);
         return true;
     } catch (...) {
         return false;
@@ -55,6 +59,27 @@ static void handleClient(int client_fd, OrderStore& store) {
             buffer.erase(0, pos + 1);
 
             if (msg.empty()) continue;
+
+            // comandos especiales
+            if (msg == "GET_MESAS") {
+                int mesas = cargarMesas();
+                std::string res = std::to_string(mesas) + "\n";
+                send(client_fd, res.c_str(), res.size(), 0);
+                continue;
+            }
+
+            if (msg == "GET_PRODUCTOS") {
+                std::vector<producto> lista;
+                cargarProductos(lista);
+
+                std::string res;
+                for (size_t i = 0; i < lista.size(); i++) {
+                    res += std::to_string(i) + "|" + lista[i].nombre + "\n";
+                }
+
+                send(client_fd, res.c_str(), res.size(), 0);
+                continue;
+            }
 
             if (parseAndStore(msg, store)) {
                 send(client_fd, "OK\n", 3, 0);
@@ -108,7 +133,7 @@ void runServer(OrderStore& store, int port) {
 
         char ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
-        std::cout << "Cliente conectado: " << ip << '\n';
+        //std::cout << "Cliente conectado: " << ip << '\n';
 
         // un hilo por cliente para manejar conexiones en paralelo
         std::thread(handleClient, client_fd, std::ref(store)).detach();

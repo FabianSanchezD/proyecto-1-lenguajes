@@ -10,6 +10,8 @@
 #include <sys/socket.h>
 #include <thread>
 #include <unistd.h>
+#include <vector>
+#include <sstream>
 
 namespace {
 
@@ -107,4 +109,92 @@ void waitForPendingSends() {
     while (g_pending_async_sends.load(std::memory_order_acquire) > 0) {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+}
+
+int getMesasFromServer() {
+    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock_fd < 0) return 0;
+
+    sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(static_cast<uint16_t>(kServerPort));
+
+    if (inet_pton(AF_INET, kServerHost, &addr.sin_addr) != 1) {
+        close(sock_fd);
+        return 0;
+    }
+
+    if (connect(sock_fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
+        close(sock_fd);
+        return 0;
+    }
+
+    std::string msg = "GET_MESAS\n";
+    send(sock_fd, msg.c_str(), msg.size(), 0);
+
+    char buffer[64];
+    ssize_t n = recv(sock_fd, buffer, sizeof(buffer) - 1, 0);
+    close(sock_fd);
+
+    if (n <= 0) return 0;
+
+    buffer[n] = '\0';
+    return std::stoi(buffer);
+}
+
+std::vector<std::string> getProductosFromServer() {
+    std::vector<std::string> productos;
+
+    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock_fd < 0) return productos;
+
+    sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(static_cast<uint16_t>(kServerPort));
+
+    if (inet_pton(AF_INET, kServerHost, &addr.sin_addr) != 1) {
+        close(sock_fd);
+        return productos;
+    }
+
+    if (connect(sock_fd, reinterpret_cast<sockaddr*>(&addr), sizeof(addr)) < 0) {
+        close(sock_fd);
+        return productos;
+    }
+
+    // pedir productos
+    std::string msg = "GET_PRODUCTOS\n";
+    send(sock_fd, msg.c_str(), msg.size(), 0);
+
+    char buffer[512];
+    ssize_t n = recv(sock_fd, buffer, sizeof(buffer) - 1, 0);
+
+    if (n <= 0) {
+        close(sock_fd);
+        return productos;
+    }
+
+    buffer[n] = '\0';
+    std::string total(buffer);
+
+    close(sock_fd);
+
+    // parsear
+    std::istringstream ss(total);
+    std::string linea;
+
+    while (std::getline(ss, linea)) {
+        if (linea.empty()) continue;
+
+        std::istringstream lineaStream(linea);
+        std::string idStr, nombre;
+
+        if (std::getline(lineaStream, idStr, '|') &&
+            std::getline(lineaStream, nombre)) {
+
+            productos.push_back(nombre);
+        }
+    }
+
+    return productos;
 }

@@ -1,3 +1,10 @@
-Arroz con pollo,7000
-Pescado,9000
-Pizza mediana,5000
+Pizza grande,12000
+Hamburguesa junior,3500
+Hamburguesa doble,8500
+Sopa de pollo,5000
+Sopa de mariscos,8500
+Olla de carne,7500
+Casado con carne,7500
+Casado con pollo,7000
+Casado con pescado,8500
+Casado Vegano,10000
