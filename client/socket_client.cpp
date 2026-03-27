@@ -31,7 +31,7 @@ void socketPerror(const char *s) {
 } // namespace
 
 void sendOrder(const std::string &serialized) {
-    // Create IPv4 TCP socket (SOCK_STREAM).
+    // Crear socket TCP IPv4 (SOCK_STREAM).
     const int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (sock_fd < 0) {
         socketPerror("socket");
@@ -53,7 +53,7 @@ void sendOrder(const std::string &serialized) {
         return;
     }
 
-    // Attempt TCP connection to the restaurant server.
+    // Intentar conexión TCP al servidor del restaurante.
     if (connect(sock_fd, reinterpret_cast<sockaddr *>(&addr), sizeof(addr)) < 0) {
         socketPerror("connect");
         close(sock_fd);
@@ -63,7 +63,7 @@ void sendOrder(const std::string &serialized) {
 
     socketLog("Conectado al servidor\n");
 
-    // send() may write only part of the buffer; loop until all bytes are sent.
+    // send() puede escribir solo parte del buffer; iterar hasta enviar todos los bytes.
     const char *data = serialized.c_str();
     size_t remaining = serialized.size();
     while (remaining > 0) {
@@ -88,7 +88,7 @@ void sendOrder(const std::string &serialized) {
 }
 
 void sendOrderAsync(const std::string &serialized) {
-    // Count before detach so waitForPendingSends() cannot miss an in-flight send.
+    // Contar antes del detach para que waitForPendingSends() no pierda un envío en curso.
     g_pending_async_sends.fetch_add(1, std::memory_order_acq_rel);
     std::thread([serialized]() {
         struct AsyncSendGuard {
@@ -96,7 +96,7 @@ void sendOrderAsync(const std::string &serialized) {
                 g_pending_async_sends.fetch_sub(1, std::memory_order_acq_rel);
             }
         } guard;
-        // Detached thread: menu stays responsive; guard always decrements on exit.
+        // Hilo separado: el menú sigue respondiendo; el guard siempre decrementa al salir.
         sendOrder(serialized);
     }).detach();
 }

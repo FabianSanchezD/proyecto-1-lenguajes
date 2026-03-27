@@ -4,24 +4,24 @@
 #include <string>
 #include <vector>
 
-/** Server address used by the waiter client (matches typical local dev setup). */
+/** Dirección del servidor usada por el cliente mesero (configuración típica de desarrollo local). */
 constexpr const char *kServerHost = "127.0.0.1";
 constexpr int kServerPort = 8080;
 
 /**
- * Opens a TCP connection, sends one serialized order string, closes the socket.
- * Uses Linux/Berkeley sockets: socket(), connect(), send(), close().
+ * Abre una conexión TCP, envía una cadena de pedido serializada y cierra el socket.
+ * Usa sockets Linux/Berkeley: socket(), connect(), send(), close().
  */
 void sendOrder(const std::string &serialized);
 
 /**
- * Sends an order in a detached thread so the main thread can register more orders
- * without waiting for the network round-trip.
+ * Envía un pedido en un hilo separado para que el hilo principal pueda registrar
+ * más pedidos sin esperar el viaje de ida y vuelta por la red.
  */
 void sendOrderAsync(const std::string &serialized);
 
 /**
- * Blocks until all queued async sends have finished (e.g. before process exit).
+ * Bloquea hasta que todos los envíos asíncronos en cola hayan finalizado (ej. antes de salir del proceso).
  */
 void waitForPendingSends();
 

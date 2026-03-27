@@ -133,7 +133,7 @@ void runServer(OrderStore& store, int port) {
 
         char ip[INET_ADDRSTRLEN];
         inet_ntop(AF_INET, &client_addr.sin_addr, ip, sizeof(ip));
-        //std::cout << "Cliente conectado: " << ip << '\n';
+        //std::cout << "Cliente conectado: " << ip << '\n'
 
         // un hilo por cliente para manejar conexiones en paralelo
         std::thread(handleClient, client_fd, std::ref(store)).detach();

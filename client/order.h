@@ -5,7 +5,7 @@
 #include <vector>
 
 /**
- * Represents a single restaurant order entered by a waiter (mesero).
+ * Representa un pedido individual del restaurante ingresado por un mesero
  */
 struct Order {
     int table = 0;
@@ -16,25 +16,25 @@ struct Order {
 
 
 /**
- * Reads table number, product name, and quantity from standard input.
+ * Lee el número de mesa, nombre del producto y cantidad desde la entrada
  */
 void inputOrder(Order &order, const std::vector<std::string>& productos);
 
 /**
- * Validates: table > 0 && table <= maxMesas, quantity > 0, product non-empty.
+ * Valida: mesa > 0 && mesa <= maxMesas, cantidad > 0
  */
 bool validateOrder(const Order &order, int maxMesas, const std::vector<std::string>& productos);
 
 /**
- * Serializes order to wire format: table|product|quantity
+ * Serializa el pedido al formato de red: mesa|producto|cantidad
  */
 std::string serializeOrder(const Order &order, const std::vector<std::string>& productos);
 
-/** Prints order fields for review in the console. */
+/** Imprime los campos del pedido para revisión en la consola */
 void displayOrder(const Order &order, const std::vector<std::string>& productos);
 
 /**
- * Lets the user edit table, product, or quantity, then re-validates.
+ * Permite al usuario editar mesa, producto o cantidad, luego revalid
  */
 void modifyOrder(Order &order, int maxMesas, const std::vector<std::string>& productos);
 
