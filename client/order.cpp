@@ -24,7 +24,7 @@ void inputOrder(Order &order, const std::vector<std::string>& productos) {
     clearInputLine();
 
     // mostrar productos disponibles
-    std::cout << "\nProductos disponibles:\n";
+    std::cout << "\nID. Nombre del platillo\n";
     for (size_t i = 0; i < productos.size(); i++) {
         std::cout << i << ". " << productos[i] << "\n";
     }
@@ -113,7 +113,7 @@ void modifyOrder(Order &order, int maxMesas, const std::vector<std::string>& pro
 
         } else if (choice == 2) {
             // mostrar productos
-            std::cout << "\nProductos disponibles:\n";
+            std::cout << "\nID. Nombre del platillo\n";
             for (size_t i = 0; i < productos.size(); i++) {
                 std::cout << i << ". " << productos[i] << "\n";
             }

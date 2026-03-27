@@ -76,11 +76,13 @@ void modificarProducto(vector<producto>& lista) {
             cout << "Entrada invalida. Debe ingresar un numero.\n";
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return;
         }
         else if (id < 0 || id >= lista.size()) {
             cout << "ID invalido. Intente nuevamente.\n";
             cin.clear();
             cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return;
         }
         else {
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
