@@ -42,6 +42,7 @@ static void adminMenu(OrderStore& store) {
             store.displayPending();
             break;
         case 3: {
+            store.displayPending();
             std::cout << "ID de la orden a completar: ";
             int id;
             if (!(std::cin >> id)) {

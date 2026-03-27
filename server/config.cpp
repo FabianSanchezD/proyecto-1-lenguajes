@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <limits>
 #include "producto.h"
 
 using namespace std;
@@ -10,14 +11,22 @@ void agregarProducto(vector<producto>& lista) {
     producto p;
 
     cout << "Nombre del producto: ";
-    cin.ignore();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
     getline(cin, p.nombre);
 
-    cout << "Precio: ";
-    cin >> p.precio;
+    while (true) {
+        cout << "Precio: ";
+        if (cin >> p.precio && p.precio > 0) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            break; 
+        } else {
+            cout << "Entrada invalida. Ingrese un numero positivo.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+        }
+    }
 
     lista.push_back(p);
-
     cout << "Producto agregado.\n";
 }
 
@@ -37,37 +46,68 @@ void eliminarProducto(vector<producto>& lista) {
     int id;
 
     cout << "Ingrese el ID del producto a eliminar: ";
-    cin >> id;
-
-    if (id >= 0 && id < lista.size()) {
-        lista.erase(lista.begin() + id);
-        cout << "Producto eliminado.\n";
-    } else {
-        cout << "ID invalido.\n";
-    }
+        if (!(cin >> id)) {
+            cout << "Entrada invalida. Debe ingresar un numero.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        else {
+            if (id >= 0 && id < lista.size()) {
+                lista.erase(lista.begin() + id);
+                cout << "Producto eliminado.\n";
+            } else {
+                cout << "ID invalido.\n";
+            }
+        }
 }
 
 void modificarProducto(vector<producto>& lista) {
+    if (lista.empty()) {
+        cout << "No hay productos para modificar.\n";
+        return;
+    }
+
     int id;
 
-    cout << "Ingrese el ID del producto a modificar: ";
-    cin >> id;
+    while (true) {
+        cout << "Ingrese el ID del producto a modificar: ";
 
-    if (id >= 0 && id < lista.size()) {
-        cout << "Nombre actual: " << lista[id].nombre << endl;
-        cout << "Nuevo nombre: ";
-        cin.ignore();
-        getline(cin, lista[id].nombre);
+        if (!(cin >> id)) {
+            cout << "Entrada invalida. Debe ingresar un numero.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        else if (id < 0 || id >= lista.size()) {
+            cout << "ID invalido. Intente nuevamente.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        else {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
+            break; 
+        }
+    }
 
+    cout << "Nombre actual: " << lista[id].nombre << endl;
+    cout << "Nuevo nombre: ";
+    getline(cin, lista[id].nombre);
+
+    while (true) {
         cout << "Precio actual: " << lista[id].precio << endl;
         cout << "Nuevo precio: ";
-        cin >> lista[id].precio;
-
-        cout << "Producto modificado.\n";
-    } else {
-        cout << "ID invalido.\n";
+        if (cin >> lista[id].precio && lista[id].precio > 0) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            break; // precio válido
+        } else {
+            cout << "Entrada invalida. Ingrese un numero positivo.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
     }
+
+    cout << "Producto modificado.\n";
 }
+
 
 void guardarProductos(const vector<producto>& lista) {
     ofstream archivo("Datos/productos.txt");
@@ -118,9 +158,9 @@ int cargarMesas() {
 }
 
 void menuConfiguracion(vector<producto>& lista){
-    int opcion = -1;
+    int opcion;
 
-    while(opcion != 0) {
+    while(true) {
         cout << "\n=== Configuracion ===\n";
         cout << "1. Agregar producto\n";
         cout << "2. Listar productos\n";
@@ -129,7 +169,14 @@ void menuConfiguracion(vector<producto>& lista){
         cout << "5. Configurar mesas\n";
         cout << "6. Regresar\n";
         cout << "Seleccione una opcion: ";
-        cin >> opcion;
+
+        if (!(cin >> opcion)) {
+            // entrada no numérica
+            cout << "Entrada invalida. Debe ingresar un numero.\n";
+            cin.clear(); // limpiar error
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue; 
+        }
 
         switch(opcion) {
             case 1:
@@ -140,6 +187,7 @@ void menuConfiguracion(vector<producto>& lista){
                 listarProductos(lista);
                 break;
             case 3:
+                listarProductos(lista);
                 eliminarProducto(lista);
                 guardarProductos(lista);
                 break;
@@ -152,8 +200,20 @@ void menuConfiguracion(vector<producto>& lista){
                 int cantidadMesas;
                 cout << "Mesas actuales: " << cargarMesas() << endl;
                 cout << "Ingrese la nueva cantidad de mesas: ";
-                cin >> cantidadMesas;
-                guardarMesas(cantidadMesas);
+                if (!(cin >> cantidadMesas)) {
+                    cout << "Entrada invalida. Debe ingresar un numero.\n";
+                    cin.clear(); // limpiar error
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    continue; 
+                }
+                else if (cantidadMesas <= 0) {
+                    cout << "La cantidad de mesas debe ser mayor a 0.\n";
+                    continue;
+                }
+                else {
+                    guardarMesas(cantidadMesas);
+                    cout << "Cantidad de mesas actualizada.\n";
+                }
                 break;
             }
             case 6:
@@ -161,8 +221,6 @@ void menuConfiguracion(vector<producto>& lista){
             default:
                 cout << "Opcion invalida.\n";
         }
-
-        opcion = -1; 
 
     } 
 

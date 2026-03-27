@@ -27,6 +27,8 @@ void printMenu() {
 
 int main() {
     std::vector<Order> pending_orders;
+    int maxMesas = getMesasFromServer();
+    std::vector<std::string> productos = getProductosFromServer();
 
     while (true) {
         printMenu();
@@ -41,10 +43,14 @@ int main() {
 
         if (choice == 1) {
             Order o{};
-            inputOrder(o);
-            if (!validateOrder(o)) {
-                std::cout << "Pedido no válido: la mesa y la cantidad deben ser "
-                             "mayores que 0 y el producto no puede estar vacío.\n";
+            maxMesas = getMesasFromServer();
+            productos = getProductosFromServer();
+            inputOrder(o, productos);
+            if (!validateOrder(o, maxMesas, productos)) {
+                std::cout << "Pedido no válido:\n";
+                std::cout << "- La mesa debe existir (1 a " << maxMesas << ")\n";
+                std::cout << "- El producto debe existir\n";
+                std::cout << "- La cantidad debe ser mayor a 0\n";
                 continue;
             }
             pending_orders.push_back(o);
@@ -57,7 +63,7 @@ int main() {
             std::cout << "Pedidos pendientes:\n";
             for (std::size_t i = 0; i < pending_orders.size(); ++i) {
                 std::cout << "[" << i << "]\n";
-                displayOrder(pending_orders[i]);
+                displayOrder(pending_orders[i], productos);
                 std::cout << '\n';
             }
             std::cout << "Índice a modificar: ";
@@ -72,8 +78,10 @@ int main() {
                 std::cout << "Índice no válido.\n";
                 continue;
             }
-            modifyOrder(pending_orders[idx]);
-            if (!validateOrder(pending_orders[idx])) {
+            maxMesas = getMesasFromServer();
+            productos = getProductosFromServer();
+            modifyOrder(pending_orders[idx], maxMesas, productos);
+            if (!validateOrder(pending_orders[idx], maxMesas, productos)) {
                 std::cout << "Atención: este pedido sigue siendo inválido hasta "
                              "que lo corrijas.\n";
             }
@@ -85,7 +93,7 @@ int main() {
             std::cout << "Pedidos pendientes:\n";
             for (std::size_t i = 0; i < pending_orders.size(); ++i) {
                 std::cout << "[" << i << "]\n";
-                displayOrder(pending_orders[i]);
+                displayOrder(pending_orders[i], productos);
                 std::cout << '\n';
             }
             std::cout << "Índice a enviar: ";
@@ -100,12 +108,12 @@ int main() {
                 std::cout << "Índice no válido.\n";
                 continue;
             }
-            if (!validateOrder(pending_orders[idx])) {
+            if (!validateOrder(pending_orders[idx], maxMesas, productos)) {
                 std::cout << "No se puede enviar: el pedido no es válido. "
                              "Modifícalo primero.\n";
                 continue;
             }
-            const std::string payload = serializeOrder(pending_orders[idx]) + '\n';
+            const std::string payload = serializeOrder(pending_orders[idx], productos) + '\n';
             sendOrderAsync(payload);
             pending_orders.erase(pending_orders.begin() +
                                  static_cast<std::ptrdiff_t>(idx));

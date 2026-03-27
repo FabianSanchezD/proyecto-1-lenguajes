@@ -4,6 +4,7 @@
 #include <limits>
 #include <sstream>
 #include <string>
+#include <vector>
 
 namespace {
 
@@ -14,7 +15,7 @@ void clearInputLine() {
 
 } // namespace
 
-void inputOrder(Order &order) {
+void inputOrder(Order &order, const std::vector<std::string>& productos) {
     std::cout << "Número de mesa: ";
     if (!(std::cin >> order.table)) {
         clearInputLine();
@@ -22,8 +23,19 @@ void inputOrder(Order &order) {
     }
     clearInputLine();
 
-    std::cout << "Nombre del producto: ";
-    std::getline(std::cin, order.product);
+    // mostrar productos disponibles
+    std::cout << "\nProductos disponibles:\n";
+    for (size_t i = 0; i < productos.size(); i++) {
+        std::cout << i << ". " << productos[i] << "\n";
+    }
+
+    // pedir ID
+    std::cout << "ID del producto: ";
+    if (!(std::cin >> order.productId)) {
+        clearInputLine();
+        return;
+    }
+    clearInputLine();
 
     std::cout << "Cantidad: ";
     if (!(std::cin >> order.quantity)) {
@@ -33,35 +45,49 @@ void inputOrder(Order &order) {
     clearInputLine();
 }
 
-bool validateOrder(const Order &order) {
-    if (order.table <= 0) {
+bool validateOrder(const Order &order, int maxMesas, const std::vector<std::string>& productos) {
+    if (order.table <= 0 || order.table > maxMesas)
         return false;
-    }
-    if (order.quantity <= 0) {
+
+    if (order.quantity <= 0)
         return false;
-    }
-    if (order.product.empty()) {
+
+    if (order.productId < 0 || order.productId >= productos.size())
         return false;
-    }
+
     return true;
 }
 
-std::string serializeOrder(const Order &order) {
+
+std::string serializeOrder(const Order &order, const std::vector<std::string>& productos) {
     std::ostringstream out;
-    out << order.table << '|' << order.product << '|' << order.quantity;
+
+    std::string nombreProducto = "[desconocido]";
+    if (order.productId >= 0 && order.productId < productos.size()) {
+        nombreProducto = productos[order.productId];
+    }
+
+    out << order.table << '|' << nombreProducto << '|' << order.quantity;
     return out.str();
 }
 
-void displayOrder(const Order &order) {
+void displayOrder(const Order &order, const std::vector<std::string>& productos) {
     std::cout << "  Mesa: " << order.table << '\n';
-    std::cout << "  Producto: " << order.product << '\n';
+
+    if (order.productId >= 0 && order.productId < productos.size()) {
+        std::cout << "  Producto: " << productos[order.productId] << '\n';
+    } else {
+        std::cout << "  Producto: [ID inválido]\n";
+    }
+
     std::cout << "  Cantidad: " << order.quantity << '\n';
 }
 
-void modifyOrder(Order &order) {
+void modifyOrder(Order &order, int maxMesas, const std::vector<std::string>& productos) {
     while (true) {
         std::cout << "\n--- Modificar pedido ---\n";
-        displayOrder(order);
+        displayOrder(order, productos);
+
         std::cout << "1. Cambiar mesa\n";
         std::cout << "2. Cambiar producto\n";
         std::cout << "3. Cambiar cantidad\n";
@@ -84,9 +110,26 @@ void modifyOrder(Order &order) {
                 continue;
             }
             clearInputLine();
+
         } else if (choice == 2) {
-            std::cout << "Nuevo nombre del producto: ";
-            std::getline(std::cin, order.product);
+            // mostrar productos
+            std::cout << "\nProductos disponibles:\n";
+            for (size_t i = 0; i < productos.size(); i++) {
+                std::cout << i << ". " << productos[i] << "\n";
+            }
+
+            std::cout << "ID del nuevo producto: ";
+            int id;
+            if (!(std::cin >> id)) {
+                clearInputLine();
+                return;
+            }
+            clearInputLine();
+            if (id >= 0 && id < productos.size()) {
+                order.productId = id;
+            } else {
+                std::cout << "ID inválido\n";
+            }
         } else if (choice == 3) {
             std::cout << "Nueva cantidad: ";
             if (!(std::cin >> order.quantity)) {
@@ -95,16 +138,22 @@ void modifyOrder(Order &order) {
                 continue;
             }
             clearInputLine();
+
         } else if (choice == 4) {
             break;
+
         } else {
             std::cout << "Opción no válida.\n";
             continue;
         }
 
-        if (!validateOrder(order)) {
-            std::cout << "Validación incorrecta: la mesa y la cantidad deben ser "
-                         "mayores que 0 y el producto no puede estar vacío.\n";
+        if (!validateOrder(order, maxMesas, productos)) {
+            std::cout << "Pedido no válido:\n";
+            std::cout << "- La mesa debe existir (1 a " << maxMesas << ")\n";
+            std::cout << "- El producto debe existir\n";
+            std::cout << "- La cantidad debe ser mayor a 0\n";
+        } else {
+            std::cout << "Pedido actualizado correctamente.\n";
         }
     }
 }
